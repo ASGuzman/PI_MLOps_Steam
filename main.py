@@ -4,9 +4,18 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from fastapi import FastAPI,HTTPException
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Importamos los datos que se encuentran en formato parquet para dataframes
 df_PlayTimeGenre = pd.read_parquet("Datasets/df_PlayTimeGenre_hour_final1.parquet")
