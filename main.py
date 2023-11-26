@@ -127,7 +127,7 @@ def sentiment_analysis( desarrolladora : str ):
 # Sexta funcion: Sistema de recomendacion de juegos
 
 @app.get("/sistema_recomendacion_juego")
-def recomendacion_juego(id_producto: int,item_similarity_df, unique_games):
+def recomendacion_juego(id_juego: int,item_similarity_df, unique_games):
     """
     Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     """
