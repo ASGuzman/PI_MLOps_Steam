@@ -131,17 +131,11 @@ def recomendacion_juego(id_producto: int,item_similarity_df, unique_games):
     """
     Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     """
-    nombre_juego = unique_games.loc[unique_games["item_id"] == id_producto, "item_name"].values
-    if not nombre_juego:
-        raise ValueError(f"El ID de producto {id_producto} no existe.")
-    nombre_juego = nombre_juego[0]
-    similitudes_juego = item_similarity_df.loc[nombre_juego]
-    juegos_similares = similitudes_juego[similitudes_juego.index != nombre_juego]
-    juegos_similares = juegos_similares.sort_values(ascending=False)
-    juegos_recomendados = juegos_similares.head(5)
-    print(f'Los 5 juegos más similares al juego con ID {id_producto} ({nombre_juego}) son:\n')
-    for count, (juego, similitud) in enumerate(juegos_recomendados.items(), start=1):
-        print(f'No. {count}: {juego} (Similitud: {similitud})')
-
-    return juegos_recomendados.index.tolist()
+    if id_juego not in item_similarity_df.index:
+        raise ValueError(f"Juego con ID {id_juego} no encontrado en la matriz de similitud.")
+    similitudes = item_similarity_df.loc[id_juego].sort_values(ascending=False)[1:6]
+    juegos_similares = unique_games.loc[unique_games["item_id"].isin(similitudes.index), "item_name"].tolist()
+    print(f"Juegos similares al juego con ID {id_juego} incluyen:")
+    for i, juego in enumerate(juegos_similares, start=1):
+        print(f"{i}. {juego}")
 
