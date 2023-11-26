@@ -7,13 +7,13 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # Importamos los datos que se encuentran en formato parquet para dataframes
-df_PlayTimeGenre = pd.read_parquet("Datasets\df_PlayTimeGenre_hour_final1.parquet")
-df_UserForGenre = pd.read_parquet("Datasets\df_UsersForGenre2_final.parquet")
-df_UsersRecommend = pd.read_parquet("Datasets\df_UsersRecommend2_final.parquet")
-df_UsersWorstDeveloper = pd.read_parquet("Datasets\df_UserWorstDeveloper_final1.parquet")
-df_Sentiment_Analysis = pd.read_parquet("Datasets\df_Sentiment_analysis_final.parquet")
-item_similarity_df = pd.read_parquet("Datasets\item_similarity_df.parquet")
-unique_games_df = pd.read_parquet("Datasets\unique_games.parquet")
+df_PlayTimeGenre = pd.read_parquet("Datasets/df_PlayTimeGenre_hour_final1.parquet")
+df_UserForGenre = pd.read_parquet("Datasets/df_UsersForGenre2_final.parquet")
+df_UsersRecommend = pd.read_parquet("Datasets/df_UsersRecommend2_final.parquet")
+df_UsersWorstDeveloper = pd.read_parquet("Datasets/df_UserWorstDeveloper_final1.parquet")
+df_Sentiment_Analysis = pd.read_parquet("Datasets/df_Sentiment_analysis_final.parquet")
+item_similarity_df = pd.read_parquet("Datasets/item_similarity_df.parquet")
+unique_games_df = pd.read_parquet("Datasets/unique_games.parquet")
 
 # Primera funcion: PlaytimeGenre
 
