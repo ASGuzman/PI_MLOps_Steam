@@ -134,7 +134,10 @@ def recomendacion_juego(id_producto: int):
     nombre_producto = unique_games_df.loc[unique_games_df["item_id"] == id_producto, "item_name"].values
     if not nombre_producto:
         raise ValueError(f"El ID de producto {id_producto} no existe.")
-    nombre_producto = nombre_producto[0]
+    nombre_producto = nombre_producto[0].strip().lower() 
+    if nombre_producto not in item_similarity_df.index:
+        logging.error(f"Error: El producto {nombre_producto} no se encuentra en la matriz de similitud.")
+        return None
     similitudes_producto = item_similarity_df.loc[nombre_producto]
     productos_similares = similitudes_producto[similitudes_producto.index != nombre_producto]
     productos_similares = productos_similares.sort_values(ascending=False)
