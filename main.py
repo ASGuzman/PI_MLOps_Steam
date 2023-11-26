@@ -23,8 +23,8 @@ df_UserForGenre = pd.read_parquet("Datasets/df_UsersForGenre2_final.parquet")
 df_UsersRecommend = pd.read_parquet("Datasets/df_UsersRecommend2_final.parquet")
 df_UsersWorstDeveloper = pd.read_parquet("Datasets/df_UserWorstDeveloper_final1.parquet")
 df_Sentiment_Analysis = pd.read_parquet("Datasets/df_Sentiment_analysis_final.parquet")
-item_similarity_df = pd.read_parquet("Datasets/item_similarity_df.parquet")
-unique_games_df = pd.read_parquet("Datasets/unique_games.parquet")
+item_similarity_df = pd.read_parquet("Datasets/item_similarity_df_final.parquet")
+unique_games_df = pd.read_parquet("Datasets/unique_games_final.parquet")
 
 # Primera funcion: PlaytimeGenre
 
@@ -131,21 +131,12 @@ def recomendacion_juego(id_producto: int):
     """
     Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     """
-    try:
-        logging.info(f"Recibida solicitud para el producto con ID: {id_producto}")
-
-        nombre_producto = unique_games_df.loc[unique_games_df["item_id"] == id_producto, "item_name"].values
-        if not nombre_producto:
-            logging.warning(f"El ID de producto {id_producto} no existe.")
-            raise HTTPException(status_code=404, detail=f"El ID de producto {id_producto} no existe.")
-
-        nombre_producto = nombre_producto[0]
-        similitudes_producto = item_similarity_df.loc[nombre_producto]
-        productos_similares = similitudes_producto[similitudes_producto.index != nombre_producto]
-        productos_similares = productos_similares.sort_values(ascending=False)
-        productos_recomendados = productos_similares.head(5)
-        return productos_recomendados.index.tolist()
-    except Exception as e:
-        logging.error(f"Error en la solicitud para {nombre_producto}: {str(e)}")
-        logging.exception("Detalles del error:")
-        return None
+    nombre_producto = unique_games_df.loc[unique_games_df["item_id"] == id_producto, "item_name"].values
+    if not nombre_producto:
+        raise ValueError(f"El ID de producto {id_producto} no existe.")
+    nombre_producto = nombre_producto[0]
+    similitudes_producto = item_similarity_df.loc[nombre_producto]
+    productos_similares = similitudes_producto[similitudes_producto.index != nombre_producto]
+    productos_similares = productos_similares.sort_values(ascending=False)
+    productos_recomendados = productos_similares.head(5)
+    return productos_recomendados.index.tolist()
