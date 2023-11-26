@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
+import logging
+
 
 app = FastAPI()
 
@@ -121,9 +123,13 @@ def recomendacion_juego(id_producto: int):
     Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     """
     try:
+        logging.info(f"Recibida solicitud para el producto con ID: {id_producto}")
+
         nombre_producto = unique_games_df.loc[unique_games_df["item_id"] == id_producto, "item_name"].values
         if not nombre_producto:
+            logging.warning(f"El ID de producto {id_producto} no existe.")
             raise HTTPException(status_code=404, detail=f"El ID de producto {id_producto} no existe.")
+
         nombre_producto = nombre_producto[0]
         similitudes_producto = item_similarity_df.loc[nombre_producto]
         productos_similares = similitudes_producto[similitudes_producto.index != nombre_producto]
@@ -131,4 +137,5 @@ def recomendacion_juego(id_producto: int):
         productos_recomendados = productos_similares.head(5)
         return productos_recomendados.index.tolist()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logging.error(f"Error en la solicitud: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor.")
