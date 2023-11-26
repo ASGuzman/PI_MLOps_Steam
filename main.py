@@ -146,5 +146,6 @@ def recomendacion_juego(id_producto: int):
         productos_recomendados = productos_similares.head(5)
         return productos_recomendados.index.tolist()
     except Exception as e:
-        logging.error(f"Error en la solicitud: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
+        logging.error(f"Error en la solicitud para {nombre_producto}: {str(e)}")
+        logging.exception("Detalles del error:")
+        return None
