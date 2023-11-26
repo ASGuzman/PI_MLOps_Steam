@@ -135,7 +135,8 @@ def recomendacion_juego(id_juego: int,item_similarity_df, unique_games):
         raise ValueError(f"Juego con ID {id_juego} no encontrado en la matriz de similitud.")
     similitudes = item_similarity_df.loc[id_juego].sort_values(ascending=False)[1:6]
     juegos_similares = unique_games.loc[unique_games["item_id"].isin(similitudes.index), "item_name"].tolist()
-    print(f"Juegos similares al juego con ID {id_juego} incluyen:")
+    resultado = [f"Juegos similares al juego con ID {id_juego} incluyen:"]
     for i, juego in enumerate(juegos_similares, start=1):
-        print(f"{i}. {juego}")
+        resultado.append(f"{i}. {juego}")
 
+    return resultado
