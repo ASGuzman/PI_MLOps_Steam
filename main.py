@@ -23,8 +23,8 @@ df_UserForGenre = pd.read_parquet("Datasets/df_UsersForGenre2_final.parquet")
 df_UsersRecommend = pd.read_parquet("Datasets/df_UsersRecommend2_final.parquet")
 df_UsersWorstDeveloper = pd.read_parquet("Datasets/df_UserWorstDeveloper_final1.parquet")
 df_Sentiment_Analysis = pd.read_parquet("Datasets/df_Sentiment_analysis_final.parquet")
-item_similarity_df = pd.read_parquet("Datasets/item_similarity_df_final.parquet")
-unique_games_df = pd.read_parquet("Datasets/unique_games_final.parquet")
+item_similarity_df = pd.read_parquet("Datasets/item_similarity_df_final1.parquet")
+unique_games_df = pd.read_parquet("Datasets/unique_games_final1.parquet")
 
 # Primera funcion: PlaytimeGenre
 
@@ -127,19 +127,21 @@ def sentiment_analysis( desarrolladora : str ):
 # Sexta funcion: Sistema de recomendacion de juegos
 
 @app.get("/sistema_recomendacion_juego")
-def recomendacion_juego(id_producto: int):
+def recomendacion_juego(id_producto: int,item_similarity_df, unique_games):
     """
     Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     """
-    nombre_producto = unique_games_df.loc[unique_games_df["item_id"] == id_producto, "item_name"].values
-    if not nombre_producto:
+    nombre_juego = unique_games.loc[unique_games["item_id"] == id_producto, "item_name"].values
+    if not nombre_juego:
         raise ValueError(f"El ID de producto {id_producto} no existe.")
-    nombre_producto = nombre_producto[0].strip().lower() 
-    if nombre_producto not in item_similarity_df.index:
-        logging.error(f"Error: El producto {nombre_producto} no se encuentra en la matriz de similitud.")
-        return None
-    similitudes_producto = item_similarity_df.loc[nombre_producto]
-    productos_similares = similitudes_producto[similitudes_producto.index != nombre_producto]
-    productos_similares = productos_similares.sort_values(ascending=False)
-    productos_recomendados = productos_similares.head(5)
-    return productos_recomendados.index.tolist()
+    nombre_juego = nombre_juego[0]
+    similitudes_juego = item_similarity_df.loc[nombre_juego]
+    juegos_similares = similitudes_juego[similitudes_juego.index != nombre_juego]
+    juegos_similares = juegos_similares.sort_values(ascending=False)
+    juegos_recomendados = juegos_similares.head(5)
+    print(f'Los 5 juegos más similares al juego con ID {id_producto} ({nombre_juego}) son:\n')
+    for count, (juego, similitud) in enumerate(juegos_recomendados.items(), start=1):
+        print(f'No. {count}: {juego} (Similitud: {similitud})')
+
+    return juegos_recomendados.index.tolist()
+
