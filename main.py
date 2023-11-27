@@ -127,30 +127,17 @@ def recomendacion_juego(id_juego):
         
         if juego_seleccionado.empty:
             return {"error": f"El juego con el ID '{id_juego}' no se encuentra."}
-        
-        idx_juego = juego_seleccionado.index[0]
-        
-        # Tomar una muestra aleatoria del DataFrame modelo_recomendacion
-        sample_size = 2000
-        df_sample = modelo_recomendacion.sample(n=sample_size, random_state=42)
-        
-        # Calcular la similitud de contenido solo para el juego dado y la muestra
-        sim_scores = cosine_similarity([modelo_recomendacion.iloc[idx_juego, 3:]], df_sample.iloc[:, 3:])
-        
-        # Obtener las puntuaciones de similitud del juego dado con otros juegos
-        sim_scores = sim_scores[0]
-        
-        # Ordenar los juegos por similitud en orden descendente
-        similar_games = [(i, sim_scores[i]) for i in range(len(sim_scores)) if i != idx_juego]
-        similar_games = sorted(similar_games, key=lambda x: x[1], reverse=True)
-        
-        # Obtener los 5 juegos más similares
-        similar_game_indices = [i[0] for i in similar_games[:5]]
-        
-        # Listar los juegos similares (solo nombres)
-        similar_game_names = df_sample['app_name'].iloc[similar_game_indices].tolist()
+        indice_juego = juego_seleccionado.index[0]
+        muestra = 3000
+        df_muestra = modelo_recomendacion.sample(n=muestra, random_state=50)
+        similitud = cosine_similarity([modelo_recomendacion.iloc[indice_juego, 3:]], df_muestra.iloc[:, 3:])
+        similitud = similitud[0]
+        recomendaciones = [(i, similitud[i]) for i in range(len(similitud)) if i != indice_juego]
+        recomendaciones = sorted(recomendaciones, key=lambda x: x[1], reverse=True)
+        recomendaciones_indices = [i[0] for i in recomendaciones[:5]]
+        recomendaciones_names = df_muestra["app_name"].iloc[recomendaciones_indices].tolist()
 
-        return {"Juegos_similares": similar_game_names}
+        return {"Juegos_similares": recomendaciones_names}
     
     except ValueError:
         return {"error": "El ID del juego debe ser un número entero válido."}
