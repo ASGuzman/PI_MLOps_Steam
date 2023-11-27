@@ -24,7 +24,7 @@ df_UsersRecommend = pd.read_parquet("Datasets/df_UsersRecommend2_final.parquet")
 df_UsersWorstDeveloper = pd.read_parquet("Datasets/df_UserWorstDeveloper_final1.parquet")
 df_Sentiment_Analysis = pd.read_parquet("Datasets/df_Sentiment_analysis_final.parquet")
 item_similarity_df = pd.read_parquet("Datasets/item_similarity_df_final1.parquet")
-unique_games_df = pd.read_parquet("Datasets/unique_games_final1.parquet")
+unique_games = pd.read_parquet("Datasets/unique_games_final1.parquet")
 
 # Primera funcion: PlaytimeGenre
 
