@@ -2,20 +2,12 @@ import pandas as pd
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
-from fastapi import FastAPI,HTTPException
-import logging
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Importamos los datos que se encuentran en formato parquet para dataframes
 df_PlayTimeGenre = pd.read_parquet("Datasets/df_PlayTimeGenre_hour_final1.parquet")
@@ -125,17 +117,49 @@ def sentiment_analysis( desarrolladora : str ):
 
 # Sexta funcion: Sistema de recomendacion de juegos
 
-item_similarity_df = pd.read_csv("Datasets/item_similarity_df_final01.csv")
-unique_games = pd.read_csv("Datasets/unique_games_final01.csv")
+modelo_recomendacion = pd.read_csv("Datasets/modelo_reco_final.csv")
 
-@app.get("/sistema_recomendacion_juego")
-def recomendacion_juego(id_juego: int,item_similarity_df,unique_games):
-    # Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
-    if id_juego not in item_similarity_df.index:
-        raise ValueError(f"Juego con ID {id_juego} no encontrado en la matriz de similitud.")
-    similitudes = item_similarity_df.loc[id_juego].sort_values(ascending=False)[1:6]
-    juegos_similares = unique_games.loc[unique_games["item_id"].isin(similitudes.index), "item_name"].tolist()
-    resultado = [f"Juegos similares al juego con ID {id_juego} incluyen:"]
-    for i, juego in enumerate(juegos_similares, start=1):
-        resultado.append(f"{i}. {juego}")
-    return resultado
+def recomendacion_juego(id_juego):
+    try:
+        id_juego = int(id_juego)
+        
+        juego_seleccionado = modelo_recomendacion[modelo_recomendacion['id'] == id_juego]
+        
+        if juego_seleccionado.empty:
+            return {"error": f"El juego con el ID '{id_juego}' no se encuentra."}
+        
+        idx_juego = juego_seleccionado.index[0]
+        
+        # Tomar una muestra aleatoria del DataFrame modelo_recomendacion
+        sample_size = 2000
+        df_sample = modelo_recomendacion.sample(n=sample_size, random_state=42)
+        
+        # Calcular la similitud de contenido solo para el juego dado y la muestra
+        sim_scores = cosine_similarity([modelo_recomendacion.iloc[idx_juego, 3:]], df_sample.iloc[:, 3:])
+        
+        # Obtener las puntuaciones de similitud del juego dado con otros juegos
+        sim_scores = sim_scores[0]
+        
+        # Ordenar los juegos por similitud en orden descendente
+        similar_games = [(i, sim_scores[i]) for i in range(len(sim_scores)) if i != idx_juego]
+        similar_games = sorted(similar_games, key=lambda x: x[1], reverse=True)
+        
+        # Obtener los 5 juegos más similares
+        similar_game_indices = [i[0] for i in similar_games[:5]]
+        
+        # Listar los juegos similares (solo nombres)
+        similar_game_names = df_sample['app_name'].iloc[similar_game_indices].tolist()
+
+        return {"Juegos_similares": similar_game_names}
+    
+    except ValueError:
+        return {"error": "El ID del juego debe ser un número entero válido."}
+
+
+@app.get("/recomendar/{juego_id}")
+def obtener_recomendaciones(juego_id: int):
+    try:
+        recomendaciones = recomendacion_juego(juego_id)
+        return {"recomendaciones": recomendaciones}
+    except Exception as e:
+        return {"error": f"Error en la recomendación: {str(e)}"}
