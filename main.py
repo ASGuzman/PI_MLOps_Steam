@@ -122,23 +122,21 @@ modelo_recomendacion = pd.read_csv("Datasets/modelo_reco_final.csv")
 def recomendacion_juego(id_juego):
     try:
         id_juego = int(id_juego)
-        
-        juego_seleccionado = modelo_recomendacion[modelo_recomendacion['id'] == id_juego]
-        
+        juego_seleccionado = modelo_recomendacion[modelo_recomendacion["id"] == id_juego]
         if juego_seleccionado.empty:
             return {"error": f"El juego con el ID '{id_juego}' no se encuentra."}
         indice_juego = juego_seleccionado.index[0]
         muestra = 3000
         df_muestra = modelo_recomendacion.sample(n=muestra, random_state=50)
-        similitud = cosine_similarity([modelo_recomendacion.iloc[indice_juego, 3:]], df_muestra.iloc[:, 3:])
-        similitud = similitud[0]
-        recomendaciones = [(i, similitud[i]) for i in range(len(similitud)) if i != indice_juego]
-        recomendaciones = sorted(recomendaciones, key=lambda x: x[1], reverse=True)
-        recomendaciones_indices = [i[0] for i in recomendaciones[:5]]
+        juego_features = modelo_recomendacion.iloc[indice_juego, 3:]
+        muestra_features = df_muestra.iloc[:, 3:]
+        similitud = cosine_similarity([juego_features], muestra_features)[0]
+        recomendaciones = sorted(enumerate(similitud), key=lambda x: x[1], reverse=True)[:5]
+        recomendaciones_indices = [i[0] for i in recomendaciones]
         recomendaciones_names = df_muestra["app_name"].iloc[recomendaciones_indices].tolist()
 
         return {"Juegos_similares": recomendaciones_names}
-    
+
     except ValueError:
         return {"error": "El ID del juego debe ser un número entero válido."}
 
