@@ -23,8 +23,7 @@ df_UserForGenre = pd.read_parquet("Datasets/df_UsersForGenre2_final.parquet")
 df_UsersRecommend = pd.read_parquet("Datasets/df_UsersRecommend2_final.parquet")
 df_UsersWorstDeveloper = pd.read_parquet("Datasets/df_UserWorstDeveloper_final1.parquet")
 df_Sentiment_Analysis = pd.read_parquet("Datasets/df_Sentiment_analysis_final.parquet")
-item_similarity_df = pd.read_parquet("Datasets/item_similarity_df_final1.parquet")
-unique_games = pd.read_parquet("Datasets/unique_games_final1.parquet")
+
 
 # Primera funcion: PlaytimeGenre
 
@@ -126,11 +125,12 @@ def sentiment_analysis( desarrolladora : str ):
 
 # Sexta funcion: Sistema de recomendacion de juegos
 
+item_similarity_df = pd.read_csv("Datasets/item_similarity_df_final01.csv")
+unique_games = pd.read_csv("Datasets/unique_games_final01.csv")
+
 @app.get("/sistema_recomendacion_juego")
-def recomendacion_juego(id_juego: int,item_similarity_df, unique_games):
-    """
-    Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
-    """
+def recomendacion_juego(id_juego: int,item_similarity_df,unique_games):
+    # Funcion que devuelve una lista con 5 juegos recomendados similares al ingresado.
     if id_juego not in item_similarity_df.index:
         raise ValueError(f"Juego con ID {id_juego} no encontrado en la matriz de similitud.")
     similitudes = item_similarity_df.loc[id_juego].sort_values(ascending=False)[1:6]
@@ -138,5 +138,4 @@ def recomendacion_juego(id_juego: int,item_similarity_df, unique_games):
     resultado = [f"Juegos similares al juego con ID {id_juego} incluyen:"]
     for i, juego in enumerate(juegos_similares, start=1):
         resultado.append(f"{i}. {juego}")
-
     return resultado
